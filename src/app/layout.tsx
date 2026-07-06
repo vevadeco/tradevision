@@ -40,6 +40,17 @@ export default function RootLayout({
             </main>
             <footer className="border-t border-zinc-800 py-6 text-center text-xs text-zinc-600">
               TradeVision — Educational purposes only. Not financial advice.
+              <p className="mt-2">
+                Made by the fine folks at{" "}
+                <a
+                  href="https://www.vevade.com"
+                  className="underline hover:text-zinc-400"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  VevadeCo
+                </a>
+              </p>
             </footer>
           </GameProvider>
         </body>

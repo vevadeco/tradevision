@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useClerkEnabled } from "@/components/auth/ClerkAppProvider";
 import { checkNewBadges, DEFAULT_PROGRESS } from "@/lib/scoring";
 import type { UserProgress } from "@/lib/types";
 
@@ -46,8 +47,15 @@ async function persistProgress(progress: UserProgress): Promise<void> {
   if (!res.ok) throw new Error("Failed to save progress");
 }
 
-export function GameProvider({ children }: { children: ReactNode }) {
-  const { isSignedIn, isLoaded } = useAuth();
+function GameProviderCore({
+  children,
+  isSignedIn,
+  isLoaded,
+}: {
+  children: ReactNode;
+  isSignedIn: boolean;
+  isLoaded: boolean;
+}) {
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [hydrated, setHydrated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -88,7 +96,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       try {
         await persistProgress(next);
       } catch {
-        // keep optimistic local state; user can retry on next action
+        // keep optimistic local state
       } finally {
         setIsSaving(false);
       }
@@ -195,7 +203,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       value={{
         progress,
         hydrated: hydrated && isLoaded,
-        isSignedIn: !!isSignedIn,
+        isSignedIn,
         isSaving,
         completeLesson,
         completeCaseStudy,
@@ -206,6 +214,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
       {children}
     </GameContext.Provider>
   );
+}
+
+function GameProviderWithClerk({ children }: { children: ReactNode }) {
+  const { isSignedIn, isLoaded } = useAuth();
+  return (
+    <GameProviderCore isSignedIn={!!isSignedIn} isLoaded={isLoaded}>
+      {children}
+    </GameProviderCore>
+  );
+}
+
+export function GameProvider({ children }: { children: ReactNode }) {
+  const clerkEnabled = useClerkEnabled();
+
+  if (!clerkEnabled) {
+    return (
+      <GameProviderCore isSignedIn={false} isLoaded={true}>
+        {children}
+      </GameProviderCore>
+    );
+  }
+
+  return <GameProviderWithClerk>{children}</GameProviderWithClerk>;
 }
 
 export function useGame() {

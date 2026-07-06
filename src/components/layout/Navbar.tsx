@@ -5,15 +5,18 @@ import {
   SignInButton,
   SignUpButton,
   UserButton,
+  useAuth,
 } from "@clerk/nextjs";
+import { useClerkEnabled } from "@/components/auth/ClerkAppProvider";
 import { getLevel, getLevelProgress, getXpToNextLevel } from "@/lib/scoring";
 import { BADGES } from "@/lib/scoring";
 import { useGame } from "@/context/GameContext";
 
-export function ScorePanel() {
-  const { progress, hydrated, isSignedIn, isSaving } = useGame();
+function AuthenticatedScorePanel() {
+  const { progress, hydrated, isSaving } = useGame();
+  const { isSignedIn, isLoaded } = useAuth();
 
-  if (!hydrated) {
+  if (!hydrated || !isLoaded) {
     return <div className="h-10 w-32 animate-pulse rounded-lg bg-zinc-800" />;
   }
 
@@ -91,6 +94,20 @@ export function ScorePanel() {
       />
     </div>
   );
+}
+
+export function ScorePanel() {
+  const clerkEnabled = useClerkEnabled();
+
+  if (!clerkEnabled) {
+    return (
+      <span className="text-xs text-amber-500/80" title="Set Clerk env vars on Vercel">
+        Auth not configured
+      </span>
+    );
+  }
+
+  return <AuthenticatedScorePanel />;
 }
 
 export function Navbar() {

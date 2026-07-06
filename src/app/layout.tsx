@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkAppProvider } from "@/components/auth/ClerkAppProvider";
 import { GameProvider } from "@/context/GameContext";
 import { Navbar } from "@/components/layout/Navbar";
 import "./globals.css";
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
+    <ClerkAppProvider>
       <html
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
@@ -44,6 +44,6 @@ export default function RootLayout({
           </GameProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ClerkAppProvider>
   );
 }

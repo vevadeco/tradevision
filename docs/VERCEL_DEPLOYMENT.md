@@ -226,7 +226,11 @@ cp .env.example .env.local
 
 ### `MIDDLEWARE_INVOCATION_FAILED` (500)
 
-This almost always means **Clerk environment variables are missing** on Vercel.
+This error means the request interceptor crashed before your app loaded.
+
+**Fix (Next.js 16):** TradeVision uses `src/proxy.ts` (Node.js runtime), not the deprecated `middleware.ts`. Ensure you are on the latest deploy.
+
+**If it persists, check Clerk env vars:**
 
 1. Vercel project → **Settings → Environment Variables**
 2. Add for **Production** (and Preview):
@@ -234,9 +238,9 @@ This almost always means **Clerk environment variables are missing** on Vercel.
    - `CLERK_SECRET_KEY` = `sk_test_…` or `sk_live_…`
    - `NEXT_PUBLIC_CLERK_SIGN_IN_URL` = `/sign-in`
    - `NEXT_PUBLIC_CLERK_SIGN_UP_URL` = `/sign-up`
-3. **Redeploy** (Deployments → … → Redeploy) — env vars do not apply to past builds.
+3. **Redeploy** — env vars do not apply to past builds.
 
-Without these keys the app will load in browse-only mode but sign-in and progress saving will not work.
+Without Clerk keys the app loads in browse-only mode; sign-in and progress saving require the keys above.
 
 ### Build fails on Vercel
 
